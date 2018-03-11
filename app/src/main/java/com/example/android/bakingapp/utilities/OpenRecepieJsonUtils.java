@@ -2,6 +2,11 @@ package com.example.android.bakingapp.utilities;
 
 import android.content.Context;
 import android.util.JsonReader;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,47 +15,77 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
+import static android.R.attr.key;
+
 /**
  * Created by hjadhav on 12/31/2017.
  */
 
 public class OpenRecepieJsonUtils {
+    static String id,name,servings,image;
+    static String quantity,measure,ingredient;
+    static String idSteps,shortDescription,description,videoURL,thumbnailURL;
+    private static final String TAG = OpenRecepieJsonUtils.class.getSimpleName();
+    public static ArrayList<RecepieProfileData> recepie = new ArrayList<>();
 
     public static ArrayList<RecepieProfileData> getSimpleRecepieStringsFromJson
-            (Context context, InputStream inputStream) throws IOException {
+            (Context context, String detailsJsonStr) throws IOException, JSONException {
 
-        JsonReader reader = new JsonReader(new InputStreamReader(inputStream,"UTF-8"));
-        try {
-            return readMessagesArray(reader);
-        } finally {
-            reader.close();
-        }
-    }
-    public static ArrayList<RecepieProfileData> readMessagesArray(JsonReader reader) throws IOException {
-        ArrayList<RecepieProfileData> recepieData = new ArrayList<>();
-        reader.beginArray();
-        while (reader.hasNext()){
-            recepieData.add(readMessage(reader));
-        }
-        reader.endArray();
-        return recepieData;
-    }
-    public static RecepieProfileData readMessage(JsonReader reader) throws IOException {
-        int id = 0;
-        String name = null;
 
-        reader.beginObject();
-        while (reader.hasNext()){
-            String topic = reader.nextName();
-            if (topic.equals("id")){
-                id = reader.nextInt();
-            } else if (topic.equals("name")){
-                name = reader.nextString();
-            } else {
-                reader.skipValue();
+        if (detailsJsonStr != null){
+            Log.v(TAG,"Code reached in detailsJsonStr ");
+            JSONArray jsonArray = new JSONArray(detailsJsonStr);
+            for (int n=0; n<jsonArray.length();n++){
+                JSONObject jsonObj = jsonArray.getJSONObject(n);
+                id = jsonObj.getString("id");
+                name = jsonObj.getString("name");
+                servings = jsonObj.getString("servings");
+                image = jsonObj.getString("image");
+
+                Log.v(TAG,"name:  " + name );
+                Log.v(TAG,"image:  " + image );
+
+                // Ingredients is JSON Array
+                JSONArray ingredients = jsonObj.getJSONArray("ingredients");
+                for (int i=0; i<ingredients.length(); i++){
+                    JSONObject jsonObjIng = ingredients.getJSONObject(i);
+                    quantity = jsonObjIng.getString("quantity");
+                    measure = jsonObjIng.getString("measure");
+                    ingredient = jsonObjIng.getString("ingredient");
+                }
+
+                // Steps is JSON Array
+                JSONArray steps = jsonObj.getJSONArray("steps");
+                for (int s=0; s<steps.length(); s++){
+                    JSONObject jsonObjSteps = steps.getJSONObject(s);
+                    idSteps = jsonObjSteps.getString("id");
+                    shortDescription = jsonObjSteps.getString("description");
+                    description = jsonObjSteps.getString("description");
+                    videoURL = jsonObjSteps.getString("videoURL");
+                    Log.v(TAG,"videoURL:  " + videoURL );
+                    thumbnailURL = jsonObjSteps.getString("thumbnailURL");
+                }
+                RecepieProfileData recepieData = new RecepieProfileData(id,name,servings,image,quantity,measure,ingredient,idSteps,shortDescription,
+                        description,videoURL,thumbnailURL);
+
+                recepieData.setId(id);
+                recepieData.setName(name);
+                recepieData.setServings(servings);
+                recepieData.setImage(image);
+                recepieData.setQuantity(quantity);
+                recepieData.setMeasure(measure);
+                recepieData.setIngredient(ingredient);
+                recepieData.setIdSteps(idSteps);
+                recepieData.setShortDescription(shortDescription);
+                recepieData.setDescription(description);
+                recepieData.setVideoURL(videoURL);
+                recepieData.setThumbnailURL(thumbnailURL);
+
+                Log.v(TAG,"recepie before: "+recepie);
+                recepie.add(recepieData);
+                Log.v(TAG,"recepie: "+recepie);
             }
         }
-        reader.endObject();
-        return new RecepieProfileData(id , name);
+        return recepie;
     }
 }
