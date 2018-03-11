@@ -23,9 +23,9 @@ import static android.R.attr.resource;
  * Created by hjadhav on 12/31/2017.
  */
 
-public class MasterListAdapter extends ArrayAdapter<RecepieProfileData> {
+public class MasterListAdapter extends ArrayAdapter<RecepieProfileDataBasics> {
 
-    public MasterListAdapter(Activity context, List<RecepieProfileData> recepieProfile) {
+    public MasterListAdapter(Activity context, List<RecepieProfileDataBasics> recepieProfile) {
         super(context, 0 , recepieProfile);
     }
 
@@ -33,15 +33,15 @@ public class MasterListAdapter extends ArrayAdapter<RecepieProfileData> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        RecepieProfileData recepieProfileData = getItem(position);
+        RecepieProfileDataBasics recepieProfileData = getItem(position);
 
         View rootView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_recepie,parent,false);
 
         TextView versionNameView = rootView.findViewById(R.id.list_item_version_name);
-        versionNameView.setText(recepieProfileData.recepieNumber);
+        versionNameView.setText(recepieProfileData.versionName);
 
         TextView versionNumberView = rootView.findViewById(R.id.list_item_version_number);
-        versionNumberView.setText(recepieProfileData.recepieName);
+        versionNumberView.setText(recepieProfileData.versionNumber);
 
         return rootView;
 
